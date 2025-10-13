@@ -1,0 +1,72 @@
+ADBMS Assignment 2(B)(Map Reduce)
+TE IT
+3081
+TEJAS SHINDE
+
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Install the latest PowerShell for new features and improvements! https://aka.ms/PSWindows
+
+PS C:\Users\ASUS\Desktop> mongosh
+Current Mongosh Log ID: 68ec6c5b1fe5468bd3718dc3
+Connecting to:          mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.5.5
+Using MongoDB:          8.0.11
+Using Mongosh:          2.5.5
+mongosh 2.5.8 is available for download: https://www.mongodb.com/try/download/shell
+
+For mongosh info see: https://www.mongodb.com/docs/mongodb-shell/
+
+------
+   The server generated these startup warnings when booting
+   2025-10-01T10:22:48.059+05:30: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted
+------
+
+test> use company
+switched to db company
+company> db.createCollection("students")
+{ ok: 1 }
+company> db.students.insertMany([
+... {"name": "Midhu", "subject": "science", "marks": 68},
+... {"name": "Midhu", "subject": "maths", "marks": 98},
+... {"name": "Midhu", "subject": "sports", "marks":77},
+... {"name": "Akhil", "subject": "science", "marks": 67},
+... {"name": "Akhil", "subject": "maths", "marks": 87},
+... {"name": "Akhil", "subject": "sports", "marks": 89},
+... {"name": "Anish", "subject": "science", "marks": 67},
+... {"name": "Anish", "subject": "maths", "marks": 78},
+... {"name": "Anish", "subject": "sports", "marks": 90}])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('68ec6c7b1fe5468bd3718dc4'),
+    '1': ObjectId('68ec6c7b1fe5468bd3718dc5'),
+    '2': ObjectId('68ec6c7b1fe5468bd3718dc6'),
+    '3': ObjectId('68ec6c7b1fe5468bd3718dc7'),
+    '4': ObjectId('68ec6c7b1fe5468bd3718dc8'),
+    '5': ObjectId('68ec6c7b1fe5468bd3718dc9'),
+    '6': ObjectId('68ec6c7b1fe5468bd3718dca'),
+    '7': ObjectId('68ec6c7b1fe5468bd3718dcb'),
+    '8': ObjectId('68ec6c7b1fe5468bd3718dcc')
+  }
+}
+
+
+1) To fnd average marks for each student.
+
+company> db.students.mapReduce(function(){emit(this.name,this.marks);},function(key,values){return Array.avg(values);},{out:"average_marks"});db.average_marks.find()
+[
+  { _id: 'Anish', value: 78.33333333333333 },
+  { _id: 'Akhil', value: 81 },
+  { _id: 'Midhu', value: 81 }
+]
+
+
+2) To fnd total marks for each students.
+
+company> db.students.mapReduce(function(){emit(this.name,this.marks);},function(key,values){return Array.sum(values);},{out:"total_marks"});db.total_marks.find()
+[
+  { _id: 'Anish', value: 235 },
+  { _id: 'Akhil', value: 243 },
+  { _id: 'Midhu', value: 243 }
+]
